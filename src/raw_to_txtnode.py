@@ -36,8 +36,14 @@ def extract_markdown_links(text: str) -> list[tuple]:
 
 def split_nodes_image(old_nodes: list[TextNode]) -> list[TextNode]:
    output: list[TextNode] = []
+
    
    for old_node in old_nodes:
+
+      if old_node.text_type != TextType.TEXT:
+         output.append(old_node)
+         continue
+
       alt_urls: list[tuple] = extract_markdown_images(old_node.text)
 
       remaining: str = old_node.text
@@ -73,6 +79,12 @@ def split_nodes_link(old_nodes: list[TextNode]) -> list[TextNode]:
    output: list[TextNode] = []
 
    for old_node in old_nodes:
+      
+      if old_node.text_type != TextType.TEXT:
+         output.append(old_node)
+         continue
+
+
       txt_url_extracts: list[tuple] = extract_markdown_links(old_node.text)
 
       tbp_txt: str =  old_node.text
@@ -96,9 +108,23 @@ def split_nodes_link(old_nodes: list[TextNode]) -> list[TextNode]:
          output.append(TextNode(pre_delim, TextType.TEXT))
          output.append(TextNode(link_txt, TextType.LINK,link_url))
 
+
          tbp_txt = post_delim
 
       if tbp_txt:  
          output.append(TextNode(tbp_txt, TextType.TEXT))
 
    return output
+
+def text_to_textnodes(raw_text: str) -> list[TextNode]:
+   nodes: list[TextNode] = [TextNode(raw_text, TextType.TEXT)]
+   # no props
+   pass1 = split_nodes_delimiter(nodes, '**', TextType.BOLD)
+   pass2 = split_nodes_delimiter(pass1, "_", TextType.ITALIC)
+   pass3 = split_nodes_delimiter(pass2, '`', TextType.CODE)
+
+   # img and links
+   pass4 = split_nodes_image(pass3)
+   pass5 = split_nodes_link(pass4)
+
+   return pass5
