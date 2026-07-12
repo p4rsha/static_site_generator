@@ -16,7 +16,8 @@ def split_nodes_delimiter(old_nodes: list[TextNode], delimiter: str, text_type: 
       for i in range(len(str_components)):
 
          comp_type = TextType.TEXT if i % 2 == 0 else text_type
-         output.append(TextNode(str_components[i], comp_type))
+         if str_components[i]:
+            output.append(TextNode(str_components[i], comp_type))
 
     
    return output 

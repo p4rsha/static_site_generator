@@ -53,7 +53,6 @@ class TestSplitNodesDelimiter(unittest.TestCase):
         self.assertEqual(
             new_nodes,
             [
-                TextNode("", TextType.TEXT),
                 TextNode("one", TextType.CODE),
                 TextNode(" and ", TextType.TEXT),
                 TextNode("two", TextType.CODE),
@@ -67,7 +66,6 @@ class TestSplitNodesDelimiter(unittest.TestCase):
         self.assertEqual(
             new_nodes,
             [
-                TextNode("", TextType.TEXT),
                 TextNode("bold", TextType.BOLD),
                 TextNode(" at start", TextType.TEXT),
             ],
@@ -87,7 +85,6 @@ class TestSplitNodesDelimiter(unittest.TestCase):
             [
                 TextNode("text with ", TextType.TEXT),
                 TextNode("code", TextType.CODE),
-                TextNode("", TextType.TEXT),
                 TextNode("already italic", TextType.ITALIC),
             ],
         )
@@ -296,7 +293,6 @@ class TestTextToTextNodes(unittest.TestCase):
         nodes = text_to_textnodes("**bold** then a [link](https://boot.dev)")
         self.assertListEqual(
             [
-                TextNode("", TextType.TEXT),
                 TextNode("bold", TextType.BOLD),
                 TextNode(" then a ", TextType.TEXT),
                 TextNode("link", TextType.LINK, "https://boot.dev"),
@@ -310,7 +306,6 @@ class TestTextToTextNodes(unittest.TestCase):
             [
                 TextNode("pic", TextType.IMAGE, "https://x.com/a.png"),
                 TextNode(" and ", TextType.TEXT),
-                TextNode("", TextType.TEXT),
                 TextNode("loud", TextType.BOLD),
             ],
             nodes,
