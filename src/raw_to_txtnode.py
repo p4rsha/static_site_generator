@@ -118,6 +118,8 @@ def split_nodes_link(old_nodes: list[TextNode]) -> list[TextNode]:
    return output
 
 def text_to_textnodes(raw_text: str) -> list[TextNode]:
+
+
    nodes: list[TextNode] = [TextNode(raw_text, TextType.TEXT)]
    # no props
    pass1 = split_nodes_delimiter(nodes, '**', TextType.BOLD)
