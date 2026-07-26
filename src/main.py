@@ -1,10 +1,30 @@
 from textnode import TextType , TextNode
+from pathlib import Path
+import shutil
+
+def copy_contents(source_path: Path, dest_path:Path) -> None:
+    if dest_path.exists():
+        shutil.rmtree(dest_path)
+
+    dest_path.mkdir()
+
+    for content in source_path.iterdir():
+
+
+        if content.is_file():
+            shutil.copy(content , dest_path / content.name)
+            print(f"Copied {content.name} from {content} to { dest_path / content.name }")
+
+        if content.is_dir():
+            copy_contents( content , dest_path / content.name )
 
 
 
 def main():
-    dummy = TextNode('some anchor text' , TextType.LINK , 'https://www.boot.dev')
-    print(dummy)
+    source: Path = Path("static")
+    dest: Path = Path("public")
+
+    copy_contents(source, dest)
 
 
 if __name__ == '__main__':

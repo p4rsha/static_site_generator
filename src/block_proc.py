@@ -92,6 +92,10 @@ def text_to_children(text: str) -> list[HTMLNode]:
     return html_nodes
 
 
+
+
+# Block to HTML FUNCS
+
 def paragraph_to_html_node(block: str) -> ParentNode:
     no_new_line_block: str = " ".join(block.splitlines())
     return ParentNode('p', text_to_children(no_new_line_block))
@@ -111,4 +115,96 @@ def heading_to_html_node(block: str) -> ParentNode:
 
     tag:str = f'h{hash_count}'
 
-    return ParentNode(tag, block)
+    return ParentNode(tag, text_to_children(block[hash_count + 1:]))
+
+def quote_to_html_node(block: str) -> ParentNode:
+    clean_lines: list[str] = []
+    lines_in_block: list[str] = block.splitlines()
+
+    for line in lines_in_block:
+        clean_lines.append(
+            line.replace(">", "", 1).removeprefix(" ")
+        )
+    clean_block: str = ' '.join(clean_lines)
+
+    return ParentNode('blockquote', text_to_children(clean_block))
+
+
+
+def ul_to_html_node(block: str) -> ParentNode:
+    li_htmls: list[ParentNode] = []
+    lines:list[str] = block.splitlines()
+
+    for line in lines:
+        li_htmls.append(
+            ParentNode("li", text_to_children(line[2:]))
+        )
+
+    return ParentNode("ul", li_htmls)
+    
+
+
+def ol_to_html_node(block: str) -> ParentNode:
+    li_htmls: list[ParentNode] = []
+    lines:list[str] = block.splitlines()
+
+    for line in lines:
+        li_htmls.append(
+            ParentNode("li", text_to_children(line.split(". ", maxsplit= 1)[1]))
+        )
+
+    return ParentNode("ol", li_htmls)
+
+
+
+
+def code_to_html_node(block: str) -> ParentNode:
+    clean_block: str = block.replace('```', "").removeprefix('\n')
+
+    return ParentNode('pre', [ParentNode('code', [text_node_to_html_node(TextNode(clean_block, TextType.TEXT))])])
+
+
+
+'''class BlockType(Enum):
+    PARAGRAPH = 'paragraph'
+    HEADING = 'heading'
+    CODE = 'code'
+    QUOTE = 'quote'
+    UL = 'unordered_list'
+    OL = 'ordered_list'
+'''
+
+
+def markdown_to_html_node(markdown: str) -> ParentNode:
+    md_blocks: list[str] = markdown_to_blocks(markdown)
+
+    children_html_nodes: list[HTMLNode] = []
+
+    for md_block in md_blocks:
+        block_type = block_to_block_type(md_block)
+        current_node: HTMLNode | None = None
+        
+        if block_type is BlockType.PARAGRAPH:
+            current_node = paragraph_to_html_node(md_block)
+
+        elif block_type is BlockType.HEADING:
+            current_node = heading_to_html_node(md_block)
+
+        elif block_type is BlockType.CODE:
+            current_node = code_to_html_node(md_block)
+
+        elif block_type is BlockType.QUOTE:
+            current_node = quote_to_html_node(md_block)
+
+        elif block_type is BlockType.UL:
+            current_node = ul_to_html_node(md_block)
+
+        elif block_type is BlockType.OL:
+            current_node = ol_to_html_node(md_block)
+
+        else:
+            raise Exception("Shit must have hit the fan")
+
+        children_html_nodes.append(current_node)
+
+    return ParentNode('div', children= children_html_nodes)
