@@ -1,5 +1,6 @@
 from pathlib import Path
 import shutil
+import sys
 
 from page_gen import generate_pages_recursive
 
@@ -31,14 +32,16 @@ def copy_contents(source_path: Path, dest_path:Path) -> None:
 def main():
 
     source: Path = Path("static")
-    dest: Path = Path("public")
+    dest: Path = Path("docs")
     copy_contents(source, dest)
 
     from_path_root = Path('content')
     template_path = Path('template.html')
-    dest_path_root = Path('public')
+    dest_path_root = Path('docs')
 
-    generate_pages_recursive(from_path_root, template_path, dest_path_root)
+    base_path = sys.argv[1] if len(sys.argv) > 1 else '/'
+
+    generate_pages_recursive(from_path_root, template_path, dest_path_root, base_path )
 
 
 

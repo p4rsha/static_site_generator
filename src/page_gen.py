@@ -24,7 +24,7 @@ def extract_title(markdown: str) -> str:
 
 
 
-def generate_page(from_path: Path, template_path: Path, dest_path: Path) -> None:
+def generate_page(from_path: Path, template_path: Path, dest_path: Path , basepath: str) -> None:
 
     print(f"Generating page from {from_path} to {dest_path} using {template_path}...")
 
@@ -34,13 +34,13 @@ def generate_page(from_path: Path, template_path: Path, dest_path: Path) -> None
     title: str = extract_title(page_md)
     page_html: str = markdown_to_html_node(page_md).to_html()
 
-    page_pretty_html: str = template.replace("{{ Title }}" , title).replace("{{ Content }}", page_html)
+    page_pretty_html: str = template.replace("{{ Title }}" , title).replace("{{ Content }}", page_html).replace('href="/', 'href="' + basepath).replace('src="/', 'src="' + basepath)
 
     dest_path.parent.mkdir(parents=True, exist_ok=True)
     dest_path.write_text(page_pretty_html)
 
 
-def generate_pages_recursive(dir_path_content: Path, template_path: Path, dest_dir_path: Path) -> None:
+def generate_pages_recursive(dir_path_content: Path, template_path: Path, dest_dir_path: Path , basepath: str) -> None:
 
     for path_inside_content in dir_path_content.iterdir():
 
@@ -48,21 +48,8 @@ def generate_pages_recursive(dir_path_content: Path, template_path: Path, dest_d
             file_name: str = path_inside_content.name.split(".", maxsplit= 1)[0]
             dest_path: Path = dest_dir_path / f"{file_name}.html"
 
-            print(f"Generating page from {path_inside_content} to {dest_path} using {template_path}...")
-
-
-            page_md: str = path_inside_content.read_text()
-            template: str = template_path.read_text()
-
-
-            title: str = extract_title(page_md)
-            page_html: str = markdown_to_html_node(page_md).to_html()
-
-            page_pretty_html: str = template.replace("{{ Title }}" , title).replace("{{ Content }}", page_html)
-
-            dest_path.parent.mkdir(parents=True, exist_ok=True)
-            dest_path.write_text(page_pretty_html)
+            generate_page(path_inside_content, template_path, dest_path , basepath)
 
         if path_inside_content.is_dir():
             deeper_dest_path: Path = dest_dir_path / path_inside_content.name
-            generate_pages_recursive(path_inside_content , template_path ,  deeper_dest_path)
+            generate_pages_recursive(path_inside_content , template_path ,  deeper_dest_path , basepath)
